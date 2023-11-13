@@ -1,0 +1,17 @@
+#!/usr/bin/python3
+
+import sys
+import os
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  
+def main():
+    if len(sys.argv) <= 1:
+        from network import train
+        train.main()
+    elif sys.argv[1] == 'test':
+        from tests import test
+        test.main()
+    else:
+        raise Exception("The arguments doesn't match")
+if __name__ == '__main__':
+    main()
