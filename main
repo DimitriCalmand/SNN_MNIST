@@ -3,10 +3,14 @@
 import sys
 import os
 
+# Adding the src directory for the impor
+src_path = os.path.join(os.path.dirname(__file__), 'src')
+sys.path.append(src_path)
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  
 def main():
     if len(sys.argv) <= 1:
-        from network import train
+        from model import train
         train.main()
     elif sys.argv[1] == 'test':
         from tests import test
