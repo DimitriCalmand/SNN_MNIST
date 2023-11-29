@@ -1,0 +1,15 @@
+import numpy as np
+BATCH_SIZE = 256 
+EPOCH = 5 
+NB_BITS = 8
+GRADIENT_SCALE = 100
+THRESHOLD = 1
+SHUFFLE_SIZE = 100
+
+TIME_STEP = 1e-3
+TAU_MEM = 10e-3
+TAU_SYN = 5e-3
+
+ALPHA = np.exp(-TIME_STEP / TAU_SYN)
+BETA = np.exp(-TIME_STEP / TAU_MEM)
+
