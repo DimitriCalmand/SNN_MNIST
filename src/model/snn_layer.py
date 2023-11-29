@@ -18,10 +18,12 @@ class snn_layer(tf.keras.layers.Layer):
             spiking_function
             ):
         super(snn_layer, self).__init__()
-        self.units = units
+        self.units = units # number of neuron
+
         self.alpha = alpha
         self.beta = beta
         self.threshold = threshold
+
         self.spiking_function = spiking_function # args = ()
 
     def build(self, input_shape):

@@ -5,12 +5,8 @@ import tensorflow as tf
 from model.model import SNN
 from utils import *
 from model.snn_layer import heaveside
-
-def mean_loss(y_true, y_pred):
-    one_hot = tf.one_hot(y_true, depth=10)
-    mul = -y_pred * one_hot
-    res = tf.reduce_mean(mul)
-    return res
+from model.loss import *
+from time import time
 
 def test(data, model):
     res = 0
@@ -27,10 +23,49 @@ def hyperparam():
     train_data, test_data = load_mnist()
     optimizer = tf.keras.optimizers.Adam()
 
+    print("model 1 ---------------------")
+    tps = time()
     model1 = SNN(1, THRESHOLD, heaveside, [128, 10], [ALPHA], [BETA])
     model1.compile(optimizer, mean_loss)
     model1.fit(train_data, epochs = EPOCH, verbose = 0)
     test(test_data, model1)
+    print("time = ", time() - tps)
+
+    print("model 2 ---------------------")
+    tps = time()
+    optimizer = tf.keras.optimizers.Adam()
+    model1 = SNN(1, THRESHOLD, heaveside, [256, 10], [ALPHA], [BETA])
+    model1.compile(optimizer, mean_loss)
+    model1.fit(train_data, epochs = EPOCH, verbose = 0)
+    test(test_data, model1)
+    print("time = ", time() - tps)
+
+    print("model 3 ---------------------")
+    tps = time()
+    optimizer = tf.keras.optimizers.Adam()
+    model1 = SNN(1, THRESHOLD, heaveside, [128, 10], [0.9], [BETA])
+    model1.compile(optimizer, mean_loss)
+    model1.fit(train_data, epochs = EPOCH, verbose = 0)
+    test(test_data, model1)
+    print("time = ", time() - tps)
+
+    print("model 4 ---------------------")
+    tps = time()
+    optimizer = tf.keras.optimizers.Adam()
+    model1 = SNN(1, THRESHOLD, heaveside, [128, 10], [0.9], [0.9])
+    model1.compile(optimizer, mean_loss)
+    model1.fit(train_data, epochs = EPOCH, verbose = 0)
+    test(test_data, model1)
+    print("time = ", time() - tps)
+
+    print("model 5 ---------------------")
+    tps = time()
+    optimizer = tf.keras.optimizers.Adam()
+    model1 = SNN(2, THRESHOLD, heaveside, [256, 256, 10], [ALPHA], [BETA])
+    model1.compile(optimizer, mean_loss)
+    model1.fit(train_data, epochs = EPOCH, verbose = 0)
+    test(test_data, model1)
+    print("time = ", time() - tps)
 
 
 def main():

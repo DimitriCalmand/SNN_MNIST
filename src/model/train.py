@@ -5,15 +5,11 @@ from model.model import SNN
 from model.snn_layer import heaveside
 from pretreatment.dataset import load_mnist
 import matplotlib.pyplot as plt
+from model.loss import *
 
-tf.random.set_seed(1)
 
-def mean_loss(y_true, y_pred):
-    one_hot = tf.one_hot(y_true, depth=10)
-    mul = -y_pred * one_hot
-    res = tf.reduce_mean(mul)
-    return res
 def test(data, model):
+    # function that print the accuracy
     res = 0
     k = 0
     for i in data:
@@ -26,13 +22,7 @@ def test(data, model):
     
 def main():
     train_data, test_data = load_mnist()
-
-    time_step = 1e-3
-    tau_mem = 10e-3
-    tau_syn = 5e-3
-    alpha = np.exp(-time_step / tau_syn)
-    beta = np.exp(-time_step / tau_mem)
-
+    # simple snn
     model = SNN(
             1,
             THRESHOLD,
@@ -47,6 +37,7 @@ def main():
     # compile the model with a custom loss
     model.compile(optimizer, mean_loss)
     model.fit(train_data, epochs = EPOCH)
+    # test the model
     test(test_data, model)
     
 

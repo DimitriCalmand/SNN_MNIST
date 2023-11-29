@@ -3,8 +3,9 @@
 Comment almost all the line (75 percents)
 Have at least 85 percent
 Make a test suit and test hyperparemeter
+## 2 - Make a time mnsit dataset and test it
 
-## 2 - Compare speed with a normal MNSIT with no convolutino layers and no gpu
+## 3 - Compare speed with a normal MNSIT with no convolutino layers and no gpu
 Create the same Model in C by using my matrice librairy
 
 # Write what I learn
