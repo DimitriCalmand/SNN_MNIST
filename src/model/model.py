@@ -66,11 +66,10 @@ class SNN(tf.keras.Model):
 
     def train_step(self, inputs):
         X, y_true = inputs["inputs"], inputs["outputs"]
-
         with tf.GradientTape() as tape:
             prediction = self(X)
             loss = self.loss(y_true, prediction)
-
+    
         gradient_tape = tape.gradient(loss, self.trainable_variables)
         self.optimizer.apply_gradients(zip(
             gradient_tape, self.trainable_variables)

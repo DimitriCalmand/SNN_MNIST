@@ -44,6 +44,4 @@ class output_layer(tf.keras.layers.Layer):
                 )
         outputs = outputs.stack() 
         outputs = tf.transpose(outputs, perm = [1, 2, 0])
-        m = tf.reduce_max(outputs, axis=-1)
-        log_p_y = tf.nn.log_softmax(m)
-        return log_p_y 
+        return outputs 

@@ -10,6 +10,7 @@ def treat_dataset(X, y):
                 "outputs": y
                 }
     X = tf.reshape(X.astype("float32"), (tf.shape(X)[0], -1, 1)) / 255.
+    y = tf.reshape(y, (tf.shape(y)[0], 1))
     dataset = tf.data.Dataset.from_tensor_slices((X, y))
     dataset = dataset.batch(BATCH_SIZE)
     dataset = dataset.map(map_dataset)

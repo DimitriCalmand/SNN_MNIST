@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 from utils import *
 from model.model import SNN
-from model.snn_layer import heaveside
+from model.snn_layer import *
 from pretreatment.dataset import load_mnist
 import matplotlib.pyplot as plt
 from model.loss import *
@@ -28,16 +28,18 @@ def main():
             THRESHOLD,
             heaveside,
             [128, 10],
-            [alpha],
-            [beta]
+            [ALPHA],
+            [BETA]
             )
     # optimizer
     optimizer = tf.keras.optimizers.Adam()
 
     # compile the model with a custom loss
-    model.compile(optimizer, mean_loss)
+    model.compile(optimizer, bce)
     model.fit(train_data, epochs = EPOCH)
     # test the model
+    # model.layer[-1] = snn_layer(10, ALPHA, BETA,
+    #     THRESHOLD, heaveside)
     test(test_data, model)
     
 
