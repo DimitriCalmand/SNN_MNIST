@@ -3,6 +3,7 @@ import numpy as np
 
 from model.snn_layer import snn_layer
 from model.output_layer import output_layer
+from model.metric import metric_snn
 
 
 class SNN(tf.keras.Model):
@@ -30,9 +31,7 @@ class SNN(tf.keras.Model):
         # metric param ----------------------
         self.loss_metric = tf.keras.metrics.Mean(name="loss")
 
-        self.accuracy_metric = tf.keras.metrics.SparseCategoricalAccuracy(
-                name="accuracy"
-                ) 
+        self.accuracy_metric = metric_snn()
         # ------------------------------------
 
     def _select_good_args(self, i, nb_layer, units, alpha, beta):
@@ -74,6 +73,7 @@ class SNN(tf.keras.Model):
         self.optimizer.apply_gradients(zip(
             gradient_tape, self.trainable_variables)
             )
+
         # update the metric
         self.loss_metric.update_state(loss)
         self.accuracy_metric.update_state(y_true, prediction)

@@ -5,14 +5,17 @@ from pretreatment.encode import encode
 
 def treat_dataset(X, y):
     def map_dataset(X, y):
+        tmp = encode(X, y, BATCH_SIZE // 1)
+        X = tmp[0]
+        y = tmp[1]
         return {
                 "inputs": X,
                 "outputs": y
                 }
-    X = tf.reshape(X.astype("float32"), (tf.shape(X)[0], -1, 1)) / 255.
-    y = tf.reshape(y, (tf.shape(y)[0], 1))
+    X = X.astype("float32")
+    X = tf.where(X > 127, 255.00, 0.0)
     dataset = tf.data.Dataset.from_tensor_slices((X, y))
-    dataset = dataset.batch(BATCH_SIZE)
+    dataset = dataset.batch(BATCH_SIZE, drop_remainder = True)
     dataset = dataset.map(map_dataset)
     dataset = dataset.shuffle(SHUFFLE_SIZE).prefetch(16).cache()
     return dataset

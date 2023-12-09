@@ -48,12 +48,13 @@ class snn_layer(tf.keras.layers.Layer):
             return t < time_step
 
         def body(t, membrane_potential, synapse, outputs, prev_s):
-            i = self.alpha * synapse + h[:, t]
+            h = tf.einsum("ab,bd->ad", inputs[:, :, t], self.w)
+            i = self.alpha * synapse + h
             v = (self.beta * membrane_potential + i) * (self.threshold - prev_s)
             s = heaveside(v - self.threshold)
             rst = tf.stop_gradient(s)
             outputs = outputs.write(t, s)
-            return t + 1, v, i, outputs, rst 
+            return t + 1, membrane_potential, synapse, outputs, prev_s 
 
         # I made a tf_loop because the gradient can't compute without it
         t_final, _, _, outputs, _ = tf.while_loop(condition,

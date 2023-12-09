@@ -1,4 +1,4 @@
-from pretreatment.encode import encode
+from pretreatment.encode import encode, __encode
 from pretreatment.dataset import load_mnist
 import numpy as np
 import tensorflow as tf
@@ -67,9 +67,19 @@ def hyperparam():
     test(test_data, model1)
     print("time = ", time() - tps)
 
+def test_encode():
+    data = tf.ones((256, 28, 28))
+    y = tf.ones((256))
+    X, y = encode(data, y, 4)
+    print(X.shape)
+    data = tf.constant([[[1, 0, 1, 0], [0, 1, 0, 0]]], dtype = "float32")
+    res = __encode(data)
+    print(data)
+    print(res)
 
 def main():
-    hyperparam()
+    test_encode()
+    #hyperparam()
 
 if __name__ == "__main__":
     main()

@@ -1,6 +1,6 @@
 import numpy as np
 BATCH_SIZE = 256 
-EPOCH = 5 
+EPOCH = 10 
 NB_BITS = 8
 GRADIENT_SCALE = 100
 THRESHOLD = 1

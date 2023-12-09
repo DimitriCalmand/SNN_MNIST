@@ -17,7 +17,7 @@ def test(data, model):
         prediction = model.predict(train).numpy()
         true = i["outputs"].numpy()
         res += np.sum(prediction == true)
-        k += prediction.shape[0]
+        k += prediction.shape[0] * prediction.shape[-1]
     print("accuracy on data is :", res / k)
     
 def main():
