@@ -1,0 +1,180 @@
+#!/usr/bin/python3
+import random
+
+NB_NEURON = 100
+NB_INPUT = 100 
+OUTPUT = 1 
+
+RESTING_STATE = -0.07
+REFRACTORY_STATE = -0.1
+
+THRESHOLD = -0.055
+SPIKE = +0.04
+REDUCED_REACTIVITY = 0.5
+NORMAL_REACTIVITY = 1.0
+TIME_STEP = 1 # 1 millisecondes 
+NB_TIME_REFRACTORY_ABSOLUE = 2 # 2 millisecondes
+NB_TIME_REFRACTORY_RELATIVE = 5 # 5 millisecondes
+
+
+# ================= SYNAPSE TYPE ====================
+EXCITATORY = 1
+INHIBITORY = 2
+# ===================================================
+# ================ APPLICATION ======================
+LAYER_LIST = [100, 2]
+
+class synapse:
+    id_synapse = 0
+    def __init__(self,
+            post_neuron,
+            pre_neuron = None,
+            synapse_type = EXCITATORY  
+            ):
+        self.weight = 1
+        self.pre_neuron = pre_neuron
+        self.post_neuron = post_neuron
+        self.output = 0
+        self.synapse_type = synapse_type 
+        self.history = []
+        self.nb_time_step_refractory_absolu = 0
+        self.id = synapse.id_synapse
+        synapse.id_synapse += 1
+
+    @property
+    def _is_inhibitory(self):
+        return self.synapse_type == INHIBITORY
+
+    def forward(self, debug = False):
+        input = self.pre_neuron.output
+        self.output = input * self.weight
+
+        if self._is_inhibitory:
+            self.output = 0 - self.output
+        self.history.append(self.output)
+
+class neuron:
+    id_neuron = 0
+    def __init__(self,
+            ):
+        self.opening_rate_ionic_canon = 1
+        self.membran_potential = RESTING_STATE
+        self.pre_synapse = []
+        self.post_synapse = []
+        self.output = 0
+        self.id = neuron.id_neuron
+        neuron.id_neuron += 1
+        self.nb_time_step_refractory_absolu = NB_TIME_REFRACTORY_ABSOLUE
+
+    def _put_in_refractory_state(self):
+        self.membran_potential = REFRACTORY_STATE
+        self.nb_time_step_refractory_absolu = 0
+
+    def _heaveside(self):
+        if self.membran_potential > THRESHOLD:
+            self.output = SPIKE
+            self._put_in_refractory_state()
+        else:
+            self.output = 0
+
+    def _set_ionic_canon(self):
+        if self.nb_time_step_refractory_absolu == NB_TIME_REFRACTORY_ABSOLUE:
+            # periode refractaire ou normal
+            self.opening_rate_ionic_canon = min(1, 
+                    self.opening_rate_ionic_canon + 
+                    TIME_STEP / NB_TIME_REFRACTORY_RELATIVE)
+        else:
+            # periode refractaire absolu 
+            self.nb_time_step_refractory_absolu += 1
+            self.opening_rate_ionic_canon = 0
+        if self.opening_rate_ionic_canon == 1:
+            self.membran_potential = RESTING_STATE
+
+    def forward(self, debug = False):
+        self._set_ionic_canon()
+        input = [self.membran_potential]
+        for synapse in self.pre_synapse:
+            input.append(synapse.output * self.opening_rate_ionic_canon) 
+        self.membran_potential = sum(input)
+        #print(self.membran_potential)
+        self._heaveside()
+
+def create_neuron_list(layer_list = LAYER_LIST) -> list(list()):
+    neuron_list = []
+    for nb_neuron in layer_list:
+        neurons = []
+        for i in range(nb_neuron):
+            neurons.append(neuron())
+        neuron_list.append(neurons)
+    return neuron_list
+
+def create_synapse(neuron_list):
+    synapse_list = [[]]
+    for i in range(len(neuron_list[0])):
+        cur_synapse = synapse([])
+        synapse_list[0].append(cur_synapse)
+        neuron_list[0][i].pre_synapse = [cur_synapse]
+    
+    for k in range(len(neuron_list) - 1):
+        pre_neuron = len(neuron_list[k])
+        post_neuron = len(neuron_list[k + 1])
+        synapses = []
+        for i in range(pre_neuron):
+            synapses_neuron = []
+            for n in range(post_neuron):
+                cur_synapse = synapse(
+                        post_neuron = neuron_list[k + 1][n],
+                        pre_neuron = neuron_list[k][i]
+                        )
+                synapses_neuron.append(cur_synapse)
+                synapses.append(cur_synapse)
+                neuron_list[k + 1][n].pre_synapse.append(cur_synapse)
+            neuron_list[k][i].post_synapse = synapses_neuron
+        synapse_list.append(synapses)
+    return synapse_list
+
+def print_network(neuron_list):
+    for k in range(len(neuron_list)):
+        nb_neuron = len(neuron_list[k])
+        for i in range(nb_neuron):
+            print("id = ", neuron_list[k][i].id, "\nSynapse Pre = [", end = "")
+            for synapse in neuron_list[k][i].pre_synapse:
+                print(f"{synapse.id} |", end = "")
+            print("]\nSynapse Post = [", end = "")
+            for synapse in neuron_list[k][i].post_synapse:
+                print(f"{synapse.id} |", end = "")
+            print("]")
+        if k != len(neuron_list) - 1:
+            print("\nnext layer\n")
+
+def launch(neuron_list : list, synapse_list : list, inputs : list, nb_time_step = 100):
+    for t in range(nb_time_step):
+        print("time ", t)
+        inputs = [random.choice([0, 0.1]) for _ in range(LAYER_LIST[0])]
+        for k in range(len(neuron_list)):
+            for i in range(len(synapse_list[k])):
+                if k == 0:
+                    synapse_list[k][i].output = inputs[i]
+                else:
+                    synapse_list[k][i].forward()
+                    #print(synapse_list[k][i].output)
+            for neuron in neuron_list[k]:
+                debug = False 
+                if k == 1:
+                    debug = True
+                neuron.forward(debug = debug)
+                if debug:
+                    print(neuron.output)
+
+
+def main():
+    neuron_list = create_neuron_list()
+    synapse_list = create_synapse(neuron_list)
+    #print_network(neuron_list)
+    inputs = [random.choice([0, 0.1]) for _ in range(LAYER_LIST[0])]
+    #inputs = [0.01]*LAYER_LIST[0]
+    launch(neuron_list, synapse_list, inputs, 100) 
+    print(sum(inputs))
+main()
+
+
